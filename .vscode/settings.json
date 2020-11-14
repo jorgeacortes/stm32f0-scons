@@ -1,0 +1,12 @@
+{
+  "files.associations": {
+    "*.scons": "python",
+    "*.sco": "python",
+    "SConscript": "python",
+    "SConstruct": "python",
+    "wscript": "pyhton",
+    "cstdint": "cpp",
+    "xmemory0": "cpp"
+  },
+  "python.pythonPath": "C:\\Users\\Jorge\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.8_qbz5n2kfra8p0\\python.exe"
+}

@@ -1,0 +1,24 @@
+#!python
+# STM32F072xB scons file
+Import('prjEnv')
+
+defines = [
+    'STM32F072xB',
+]
+
+link_flags = [
+    '-mcpu=cortex-m0',
+    '-mfloat-abi=soft',
+    '-mthumb',
+]
+cc_flags = [
+    '-mcpu=cortex-m0',
+    '--specs=nano.specs',
+    '-mthumb',
+    '-mfloat-abi=soft',
+]
+prjEnv.Append(
+    CPPDEFINES = defines,
+    LINKFLAGS = link_flags,
+    CCFLAGS = cc_flags,
+)

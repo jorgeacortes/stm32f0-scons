@@ -1,0 +1,142 @@
+#!python
+# Main SConscript file for the project
+import os, platform, datetime
+Import('cwd')
+#*************************
+# Input arguments definition
+#*************************
+vars = Variables(None, ARGUMENTS)
+vars.AddVariables(
+    EnumVariable('BUILD_TYPE', 'type of build to use', 'debug',  allowed_values=('debug', 'release')),
+    )
+
+#*************************
+# Config
+#*************************
+build_path = 'build/'
+tgtDir = '#'+build_path
+tgtName = 'app'
+map_file = build_path + tgtName + '.map'
+
+
+ccflags_list = [
+    '-std=gnu11',
+    '-ffunction-sections',
+    '-fdata-sections',
+    '-Wall',
+    '-fstack-usage',
+]
+
+include_path_list = []
+library_path_list = []
+# External libraries
+library_list =[
+    '-lc',
+    '-lm'
+]
+
+defines_list = []
+
+linker_script = 'STM32F072RBTX_FLASH.ld'
+link_flags = [
+    '-Wl,-Map='+map_file,
+    '-Wl,--gc-sections',
+    '-static',
+    '-T'+linker_script
+]
+#*************************
+# Methods
+#*************************
+# Script
+#*************************
+print("********************************************************************************")
+print("[Info] Starting project.scons ",datetime.datetime.now())
+print("********************************************************************************")
+print('[Info] cwd = ', cwd)
+
+SConscript('scons/compiler.scons')
+Import('compilerEnv')
+prjEnv = compilerEnv.Clone()
+
+vars.Update(prjEnv) # For input arguments
+
+prjEnv.Append(
+    # variables =     vars,               # For input argumetns
+    CPPPATH =       include_path_list,
+    CCFLAGS =       ccflags_list,
+    LIBPATH =       library_path_list,
+    LIBS =          library_list,
+    CPPDEFINES =    defines_list,
+    LINKFLAGS =     link_flags,
+    PROGSUFFIX =    '.elf',
+    # Custom parameters
+    tgtDir =        tgtDir,             # Target directory
+    tgtName =       tgtName,            # Target name
+    cwd =           cwd,                # Parent cwd
+    app_sources =   [],
+)
+
+#*************************
+# Arguments processing
+#*************************
+
+if prjEnv.GetOption('clean'):
+    print('[Info] Cleaning extra files.')
+    Clean(
+        tgtName,                # Target
+        [                       # Files or directories to remove
+            tgtDir+'*',         # We shouldn't remove build folder
+            tgtDir+'log.txt',
+            tgtDir+'app.map',
+        ]
+    )
+
+if prjEnv['BUILD_TYPE'] == 'debug':
+    prjEnv.Append(
+        CCFLAGS = [
+            '-g3',   # Debug flag
+        ],
+        CPPDEFINES = 'DEBUG'
+    )
+    print('[Info] Debug build.')
+
+if prjEnv['BUILD_TYPE'] == 'release':
+    print('[Info] Release build.')
+    prjEnv.Append(
+        CCFLAGS = [
+            '-O2',
+        ]
+    )
+
+
+#*************************
+# Debug console print
+#*************************
+print("[Info] CCFLAGS =", prjEnv['CCFLAGS'])
+print("[Info] CPPDEFINES =", prjEnv['CPPDEFINES'])
+print("[Info] INC =", prjEnv['CPPPATH'])
+print("[Info] LINKFLAGS =", prjEnv['LINKFLAGS'])
+
+#*************************
+# Collect sources and include paths
+#*************************
+SConscript('scons/stm32f072xB.scons', exports = ['prjEnv'])
+SConscript('Drivers/stm32f0hal.scons',  exports = ['prjEnv'])
+SConscript('Core/app.scons',            exports = ['prjEnv'])
+
+#*************************
+# Compile
+#*************************
+productionCodeObjs = []
+for source in prjEnv['app_sources']:
+    productionCodeObjs.extend(prjEnv.Object(source))
+print("--------------------------------------------------------------------------------")
+
+bin_app = prjEnv.Program(
+    target = prjEnv['tgtDir'] + prjEnv['tgtName'],
+    source = productionCodeObjs
+)
+
+print("********************************************************************************")
+print("[Info] project.scons processed.")
+print("********************************************************************************")

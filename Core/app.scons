@@ -1,0 +1,25 @@
+#!python
+# App scons script
+Import('prjEnv')
+
+includes = [
+    '#Core/Inc'
+]
+
+sources = [
+    'Core/Startup/startup_stm32f072rbtx.s',
+    'Core/Src/syscalls.c',
+    'Core/Src/sysmem.c',
+    'Core/Src/system_stm32f0xx.c',
+    'Core/Src/stm32f0xx_it.c',
+    'Core/Src/stm32f0xx_hal_msp.c',
+    'Core/Src/main.c'
+]
+
+defines = []
+
+prjEnv.Append(
+  app_sources = sources,
+  CPPPATH = includes,
+  CPPDEFINES = defines
+)

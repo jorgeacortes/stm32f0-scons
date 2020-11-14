@@ -1,0 +1,33 @@
+#!python
+# Compiler settings for arm-none-eabi toolchain
+import os
+
+compile_str = ("[Compiling] $TARGET")
+link_str = (
+    "********************************************************************************\n"
+    "[Linking] $TARGET\n"
+    "********************************************************************************")
+
+
+toolchain_path = os.environ['ARM_TOOLCHAIN']+'/bin/'
+compiler_link_flags = [
+    '--specs=nosys.specs',
+    '--specs=nano.specs',
+]
+compilerEnv = Environment(
+  CC =          toolchain_path + 'arm-none-eabi-gcc',
+  CXX =         toolchain_path + 'arm-none-eabi-g++',
+  AS =          toolchain_path + 'arm-none-eabi-as',
+  LINK =        toolchain_path + 'arm-none-eabi-g++',
+  OBJCOPY =     toolchain_path + 'arm-none-eabi-objcopy',
+  LINKFLAGS =   compiler_link_flags,
+  CCCOMSTR =    compile_str,
+  LINKCOMSTR =  link_str,
+  ASCOMSTR =    compile_str,
+)
+
+print("[Info] CC =",  compilerEnv['CC'])
+print("[Info] CXX =", compilerEnv['CXX'])
+print("[Info] AS =",  compilerEnv['AS'])
+
+Export('compilerEnv')
